@@ -4,9 +4,9 @@ A basic social network for CS3200 Database Design Final Project, by Kyle Alpert 
 
 ## Installation
 
-Dependencies: flask, flask-mysql
-
 Once downloaded, run __init__.py to setup config file.
+
+Before making any changes, make sure virtualenv is installed and you're working in the environment contained in env/
 
 ## Usage
 
