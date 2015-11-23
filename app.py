@@ -2,8 +2,21 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import json
+from flaskext.mysql import MySQL
+
+import config
+
 
 app = Flask(__name__)
+
+mysql = MySQL()
+
+# MySQL configurations
+app.config['MYSQL_DATABASE_USER'] = config.DB_USER
+app.config['MYSQL_DATABASE_PASSWORD'] = config.DB_PW
+app.config['MYSQL_DATABASE_DB'] = config.DB_SCHEMA
+app.config['MYSQL_DATABASE_HOST'] = config.DB_HOST
+mysql.init_app(app)
 
 
 @app.route("/")
