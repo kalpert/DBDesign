@@ -1,5 +1,6 @@
-# Project Name
+# StuffNetwork
 
+Basic college project by basic college kids ayyyy lmao.
 A basic social network for CS3200 Database Design Final Project, by Kyle Alpert and Kurt Marcinkiewicz.
 
 ## Installation
