@@ -18,6 +18,8 @@ Default app runs at localhost:5000
 
 ## Troubleshooting
 Error:
+
 Python mysqldb: Library not loaded: libmysqlclient.18.dylib
+
 Solution:
 sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
