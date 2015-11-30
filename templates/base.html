@@ -7,7 +7,26 @@
     {% endblock %}
 </head>
 <body>
-<div id="content">{% block content %}{% endblock %}</div>
+<div class="container">
+    <div class="header">
+        <nav>
+            <ul class="nav nav-pills pull-right">
+                <li role="presentation" ><a href="/">Home</a></li>
+                <li role="presentation"><a href="#">Sign In</a></li>
+                <li role="presentation" class="active"><a href="signUp">Sign Up</a></li>
+            </ul>
+        </nav>
+        <h3 class="text-muted">Stuff Network</h3>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer class="footer">
+        <p>Kyle Alpert and Kurt Marcinkiewicz</p>
+    </footer>
+</div>
+
 <script src="../static/js/jquery-2.1.4.min.js"></script>
 {% block scripts %}
 {% endblock %}
