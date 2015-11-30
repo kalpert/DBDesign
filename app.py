@@ -8,6 +8,9 @@ import config
 
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
 
 mysql = MySQL()
 
