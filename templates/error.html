@@ -1,19 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}Unauthorized Access{% endblock %}
 {% block head %}
 {{ super() }}
 <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+<link href="../static/sign-up.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="jumbotron">
-    <h1>Stuff Network!</h1>
-    <p class="lead"></p>
-    <p><a class="btn btn-lg btn-success" href="signUp" role="button">Sign up today</a>
-    </p>
+    <h1>{{error}}</h1>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="../static/js/index.js"></script>
 {% endblock %}

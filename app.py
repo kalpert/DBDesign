@@ -2,7 +2,11 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import json
+from flask import session
+from flask import redirect
+from flask import url_for
 from flaskext.mysql import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import config
 
@@ -21,29 +25,97 @@ app.config['MYSQL_DATABASE_DB'] = config.DB_SCHEMA
 app.config['MYSQL_DATABASE_HOST'] = config.DB_HOST
 mysql.init_app(app)
 
+app.secret_key = 'I miss the comfort in being sad.'
+
 
 @app.route("/")
 def main():
     return render_template('index.html')
 
 
-@app.route('/showSignUp')
+@app.route('/signUp', methods=['GET'])
 def show_sign_up():
     return render_template('sign-up.html')
 
 
 @app.route('/signUp', methods=['POST'])
 def sign_up():
-    _name = request.form['inputName']
-    _email = request.form['inputEmail']
-    _password = request.form['inputPassword']
+    try:
+        _name = request.form['inputName']
+        _email = request.form['inputEmail']
+        _password = request.form['inputPassword']
 
-    if _name and _email and _password:
-        return json.dumps({'html': '<span>Word.</span>'})
+        if _name and _email and _password:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            _hashed_password = generate_password_hash(_password)
+            cursor.callproc('sp_createUser', (_name, _email, _hashed_password))
+            data = cursor.fetchall()
+
+            if len(data) is 0:
+                conn.commit()
+                return json.dumps({'redirect': url_for('sign_in')})
+            else:
+                return json.dumps({'error': str(data[0][0])}), 400
+        else:
+            return json.dumps({'html': '<span>Enter the required fields</span>'}), 400
+
+    except Exception as e:
+        return json.dumps({'redirect': url_for('error')}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/signIn', methods=['GET'])
+def show_sign_in():
+    return render_template('sign-in.html')
+
+
+@app.route('/signIn', methods=['POST'])
+def sign_in():
+    try:
+        _username = request.form['inputEmail']
+        _password = request.form['inputPassword']
+
+        con = mysql.connect()
+        cursor = con.cursor()
+        cursor.callproc('sp_validateLogin', (_username,))
+        data = cursor.fetchall()
+
+        if len(data) > 0:
+            if check_password_hash(str(data[0][3]), _password):
+                session['user'] = data[0][0]
+                return json.dumps({'redirect': url_for('user_home')})
+            else:
+                return json.dumps({'message': 'Wrong Email address or Password.'}), 401
+        else:
+            return json.dumps({'message': 'Wrong Email address or Password.'}), 401
+
+    except Exception as e:
+        return json.dumps({'redirect': url_for('error')}), 500
+    finally:
+        cursor.close()
+        con.close()
+
+
+@app.route('/userHome')
+def user_home():
+    if session.get('user'):
+        return render_template('user-home.html')
     else:
-        return json.dumps({'html': '<span>You messed up. Try again.</span>'})
+        return render_template('error.html', error='Unauthorized Access')
 
-    # TODO: Actually validate and add user into database.
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/')
+
+
+@app.route('/error')
+def error():
+    return render_template('error', error='Sorry there was a problem with your request.')
 
 
 if __name__ == "__main__":
