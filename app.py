@@ -54,14 +54,14 @@ def sign_up():
 
             if len(data) is 0:
                 conn.commit()
-                return json.dumps({'message': 'User created successfully !'})
+                return json.dumps({'redirect': url_for('sign_in')})
             else:
-                return json.dumps({'error': str(data[0])})
+                return json.dumps({'error': str(data[0][0])}), 400
         else:
-            return json.dumps({'html': '<span>Enter the required fields</span>'})
+            return json.dumps({'html': '<span>Enter the required fields</span>'}), 400
 
     except Exception as e:
-        return json.dumps({'error': str(e)})
+        return json.dumps({'redirect': url_for('error')}), 500
     finally:
         cursor.close()
         conn.close()
