@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block head %}
+{{ super() }}
+<link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+<link href="../static/sign-in.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1>Log In to</br>Stuff Network</h1>
+    <form class="form-signin">
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" required>
+
+        <button id="btn-sign-in" class="btn btn-lg btn-primary btn-block" type="button">Log in</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/sign-in.js"></script>
+{% endblock %}

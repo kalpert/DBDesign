@@ -46,5 +46,23 @@ def sign_up():
     # TODO: Actually validate and add user into database.
 
 
+@app.route('/signIn', methods=['GET'])
+def show_sign_in():
+    return render_template('sign-in.html')
+
+
+@app.route('/signIn', methods=['POST'])
+def sign_in():
+    _email = request.form['inputEmail']
+    _password = request.form['inputPassword']
+
+    if _email and _password:
+        return json.dumps({'html': '<span>Word.</span>'})
+    else:
+        return json.dumps({'html': '<span>You messed up. Try again.</span>'})
+
+        # TODO: Actually validate
+
+
 if __name__ == "__main__":
     app.run()
