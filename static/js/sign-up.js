@@ -1,5 +1,7 @@
 (function($) {
   $(function() {
+    $('.header').find('.sign-up').addClass('active');
+
     $('#btnSignUp').click(function() {
 
       $.ajax({
