@@ -4,6 +4,7 @@ from flask import request
 from flask import json
 from flask import session
 from flask import redirect
+from flask import url_for
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -85,14 +86,14 @@ def sign_in():
         if len(data) > 0:
             if check_password_hash(str(data[0][3]), _password):
                 session['user'] = data[0][0]
-                return redirect('/userHome')
+                return json.dumps({'redirect': url_for('user_home')})
             else:
-                return render_template('error.html', error='Wrong Email address or Password.')
+                return json.dumps({'message': 'Wrong Email address or Password.'}), 401
         else:
-            return render_template('error.html', error='Wrong Email address or Password.')
+            return json.dumps({'message': 'Wrong Email address or Password.'}), 401
 
     except Exception as e:
-        return render_template('error.html', error=str(e))
+        return json.dumps({'redirect': url_for('error')}), 500
     finally:
         cursor.close()
         con.close()
@@ -110,6 +111,11 @@ def user_home():
 def logout():
     session.pop('user', None)
     return redirect('/')
+
+
+@app.route('/error')
+def error():
+    return render_template('error', error='Sorry there was a problem with your request.')
 
 
 if __name__ == "__main__":
