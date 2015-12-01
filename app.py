@@ -2,7 +2,10 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import json
+from flask import session
+from flask import redirect
 from flaskext.mysql import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import config
 
@@ -21,6 +24,8 @@ app.config['MYSQL_DATABASE_DB'] = config.DB_SCHEMA
 app.config['MYSQL_DATABASE_HOST'] = config.DB_HOST
 mysql.init_app(app)
 
+app.secret_key = 'I miss the comfort in being sad.'
+
 
 @app.route("/")
 def main():
@@ -34,16 +39,31 @@ def show_sign_up():
 
 @app.route('/signUp', methods=['POST'])
 def sign_up():
-    _name = request.form['inputName']
-    _email = request.form['inputEmail']
-    _password = request.form['inputPassword']
+    try:
+        _name = request.form['inputName']
+        _email = request.form['inputEmail']
+        _password = request.form['inputPassword']
 
-    if _name and _email and _password:
-        return json.dumps({'html': '<span>Word.</span>'})
-    else:
-        return json.dumps({'html': '<span>You messed up. Try again.</span>'})
+        if _name and _email and _password:
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            _hashed_password = generate_password_hash(_password)
+            cursor.callproc('sp_createUser', (_name, _email, _hashed_password))
+            data = cursor.fetchall()
 
-    # TODO: Actually validate and add user into database.
+            if len(data) is 0:
+                conn.commit()
+                return json.dumps({'message': 'User created successfully !'})
+            else:
+                return json.dumps({'error': str(data[0])})
+        else:
+            return json.dumps({'html': '<span>Enter the required fields</span>'})
+
+    except Exception as e:
+        return json.dumps({'error': str(e)})
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @app.route('/signIn', methods=['GET'])
@@ -53,15 +73,43 @@ def show_sign_in():
 
 @app.route('/signIn', methods=['POST'])
 def sign_in():
-    _email = request.form['inputEmail']
-    _password = request.form['inputPassword']
+    try:
+        _username = request.form['inputEmail']
+        _password = request.form['inputPassword']
 
-    if _email and _password:
-        return json.dumps({'html': '<span>Word.</span>'})
+        con = mysql.connect()
+        cursor = con.cursor()
+        cursor.callproc('sp_validateLogin', (_username,))
+        data = cursor.fetchall()
+
+        if len(data) > 0:
+            if check_password_hash(str(data[0][3]), _password):
+                session['user'] = data[0][0]
+                return redirect('/userHome')
+            else:
+                return render_template('error.html', error='Wrong Email address or Password.')
+        else:
+            return render_template('error.html', error='Wrong Email address or Password.')
+
+    except Exception as e:
+        return render_template('error.html', error=str(e))
+    finally:
+        cursor.close()
+        con.close()
+
+
+@app.route('/userHome')
+def user_home():
+    if session.get('user'):
+        return render_template('user-home.html')
     else:
-        return json.dumps({'html': '<span>You messed up. Try again.</span>'})
+        return render_template('error.html', error='Unauthorized Access')
 
-        # TODO: Actually validate
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect('/')
 
 
 if __name__ == "__main__":
