@@ -12,9 +12,13 @@
     <div class="header">
         <nav>
             <ul class="nav nav-pills pull-right">
-                <li role="presentation" class="home"><a href="/">Home</a></li>
-                <li role="presentation" class="sign-in"><a href="signIn">Sign In</a></li>
-                <li role="presentation" class="sign-up"><a href="signUp">Sign Up</a></li>
+                {% if not session.user %}
+                    <li role="presentation" class="home"><a href="/">Home</a></li>
+                    <li role="presentation" class="sign-in"><a href="signIn">Sign In</a></li>
+                    <li role="presentation" class="sign-up"><a href="signUp">Sign Up</a></li>
+                {% else %}
+                    <li role="presentation" class="log-out"><a href="logout">Log Out</a></li>
+                {% endif %}
             </ul>
         </nav>
         <h3 class="text-muted">Stuff Network</h3>
