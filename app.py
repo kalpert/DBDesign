@@ -213,6 +213,23 @@ def post():
             conn.close()
 
 
+@app.route('/favorite/<pid>', methods=['POST'])
+def favorite(pid):
+    if session.get('user'):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_createFavorite', (session.get('user'), pid))
+        data = cursor.fetchall()
+
+        if len(data) is 0:
+            conn.commit()
+            return json.dumps({'response': 'success'})
+
+        else:
+            return json.dumps({'response': 'error'}), 400
+
+
 @app.route('/logout')
 def logout():
     session.pop('user', None)

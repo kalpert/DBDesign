@@ -28,5 +28,26 @@
         window.location.href = '/error';
       });
     });
+
+    $('.add-favorite').click(function() {
+      var $this = $(this);
+      var $favorites = $this.closest('.panel').find('.favorites');
+
+      $favorites.text(parseInt($favorites.text())+1);
+
+      $.ajax({
+               url: '/favorite/' + $(this).data('post-id'),
+               type: 'POST',
+               dataType: "json"
+             })
+      .done(function() {
+        $this.prop('disabled', true);
+      })
+      .fail(function() {
+        $this.prop('disabled', true);
+        $favorites.text(parseInt($favorites.text())-1);
+        failureAlert();
+      });
+    });
   });
 })(jQuery);
