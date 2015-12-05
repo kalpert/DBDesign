@@ -20,11 +20,13 @@
                     <li role="presentation" class="sign-in"><a href="signIn">Sign In</a></li>
                     <li role="presentation" class="sign-up"><a href="signUp">Sign Up</a></li>
                 {% else %}
+                    <li role="presentation" class="home"><a href="/">Home</a></li>
+                    <li role="presentation" class="add-friends"><a href="friends">Add Friends</a></li>
                     <li role="presentation" class="log-out"><a href="logout">Log Out</a></li>
                 {% endif %}
             </ul>
         </nav>
-        <h3 class="text-muted">Stuff Network</h3>
+        <h3 class="text-muted"><a href="/">Stuff Network</a></h3>
     </div>
 
     {% block content %}

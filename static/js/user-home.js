@@ -3,6 +3,8 @@
   $(function() {
     var $newPostForm = $('.new-post-form');
 
+    $('.header').find('.home').addClass('active');
+
     $('select').tagsinput({
                             cancelConfirmKeysOnEmpty: false
                           });
@@ -23,9 +25,11 @@
       .done(function() {
         $('select').tagsinput('removeAll');
         $newPostForm.find('textarea').val('');
+        $newPostForm.find('.submit, .tags, .wrapper').addClass('hide');
+        successAlert();
       })
       .fail(function() {
-        window.location.href = '/error';
+        failureAlert();
       });
     });
 
