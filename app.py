@@ -105,43 +105,26 @@ def sign_in():
 @app.route('/userHome')
 def user_home():
     if session.get('user'):
-        posts = {
-            'posts': [
-                {
-                    'body': 'I miss the comfort in being sad',
-                    'author': 'Kurdt',
-                    'favorites': 1000,
-                    'timestamp': datetime.now(),
-                    'tags': [
-                        'happy',
-                        'sad'
-                    ]
-                },
-                {
-                    'body': 'I miss the comfort in being sad',
-                    'author': 'Kurdt',
-                    'favorites': 1000,
-                    'timestamp': datetime.now() - timedelta(minutes=30),
-                    'tags': [
-                        'happy',
-                        'sad'
-                    ]
-                },
-                {
-                    'body': 'I miss the comfort in being sad',
-                    'author': 'Kurdt',
-                    'favorites': 1000,
-                    'timestamp': datetime.now(),
-                    'tags': [
-                        'happy',
-                        'sad'
-                    ]
-                }
-            ],
-            'count': 3
-        }
 
-        return render_template('user-home.html', posts=posts)
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_getPostsOfConnectedUsers', (session.get('user'), 50))
+        posts = cursor.fetchall()
+
+        post_list = []
+
+        for post in posts:
+            post_dict = {
+                'pid': post[0],
+                'timestamp': post[1],
+                'author': post[2],
+                'body': post[3],
+                'tags': post[4].split(',') if post[4] is not None else [],
+                'favorites': post[5]
+            }
+            post_list.append(post_dict)
+        return render_template('user-home.html', posts=post_list)
     else:
         return render_template('sign-in.html', error='Unauthorized Access')
 
