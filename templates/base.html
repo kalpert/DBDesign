@@ -3,6 +3,9 @@
 <head>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/animate.css" rel="stylesheet">
+    <link href="../static/base.css" rel="stylesheet">
+
     {% block head %}
     <title>Stuff Network | {% block title %}{% endblock %}</title>
     {% endblock %}
@@ -33,6 +36,8 @@
 </div>
 
 <script src="../static/js/jquery-2.1.4.min.js"></script>
+<script src="../static/js/bootstrap-notify.js"></script>
+<script src="../static/js/base.js"></script>
 {% block scripts %}
 {% endblock %}
 </body>

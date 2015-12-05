@@ -146,6 +146,47 @@ def user_home():
         return render_template('sign-in.html', error='Unauthorized Access')
 
 
+@app.route('/friends')
+def friends():
+    if session.get('user'):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM users')
+        people = cursor.fetchall()
+
+        people_list = []
+
+        for person in people:
+            person_dict = {
+                'id': person[0],
+                'name': person[1],
+                'email': person[2]
+            }
+            people_list.append(person_dict)
+
+        return render_template('friends.html', people_list=people_list)
+    else:
+        return render_template('sign-in.html', error='Unauthorized Access')
+
+
+@app.route('/friends/<pid>', methods=['POST'])
+def add_friend(pid):
+    if session.get('user'):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_connectUsers', (session.get('user'), pid))
+        data = cursor.fetchall()
+
+        if len(data) is 0:
+            conn.commit()
+            return json.dumps({'response': 'success'})
+
+        else:
+            return json.dumps({'response': 'error'}), 400
+
+
 @app.route('/post', methods=['POST'])
 def post():
     if session.get('user'):
