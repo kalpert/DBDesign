@@ -152,19 +152,36 @@ def post():
         try:
             _user = session.get('user')
             _post = request.form['post']
-            # TODO: add the tags
             _tags = request.form.getlist('tags')
+            _pid = 0
 
             conn = mysql.connect()
             cursor = conn.cursor()
-            cursor.callproc('sp_newPost', (_user, _post))
+            cursor.callproc('sp_newPost', (_user, _post, _pid))
             data = cursor.fetchall()
 
             if len(data) is 0:
                 conn.commit()
+
+            cursor.close()
+
+            cursor = conn.cursor()
+            cursor.execute('SELECT @_sp_newPost_2')
+
+            outParam = cursor.fetchall()
+            cursor.close()
+
+            if len(outParam) > 0:
+                _id = outParam[0][0]
+                cursor = conn.cursor()
+                for _tag in _tags:
+                    cursor.callproc('sp_createPostTopic', (_id, _tag))
+                    data = cursor.fetchall()
+                    if len(data) is 0:
+                        conn.commit()
                 return json.dumps({'response': 'success'})
             else:
-                return json.dumps({'error': str(data[0][0])}), 400
+                return json.dumps({'error': str(data[0])}), 400
         except Exception as e:
             return json.dumps({'redirect': url_for('error')}), 500
         finally:
