@@ -1,0 +1,61 @@
+.feed {
+    padding: 20px;
+    background-color: #EEEEEE;
+}
+
+.panel {
+    padding: 20px;
+}
+
+.panel:last-child {
+    margin-bottom: 0;
+}
+
+.favorites {
+    font-size: 25px;
+    font-weight: bold;
+    line-height: 70%;
+}
+
+.favorites-sub-text {
+    font-size: 13px;
+    color: gray;
+}
+
+.author {
+    font-weight: bold;
+}
+
+.timestamp {
+    color: gray;
+    font-size: 11px;
+    margin-bottom: 3px;
+    line-height: 90%;
+}
+
+.tags {
+    margin-top: 10px;
+}
+
+.new-post {
+    padding: 25px;
+    background-color: #EEEEEE;
+}
+
+.new-post textarea {
+    resize: none;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    box-shadow: 1px 1px 1px rgba(0,0,0,.05);
+    margin-bottom: 7px;
+}
+
+.new-post .submit {
+    padding: 7px 30px;
+}
+
+.bootstrap-tagsinput {
+    min-width: 200px;
+}

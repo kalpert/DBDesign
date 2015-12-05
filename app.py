@@ -7,7 +7,7 @@ from flask import redirect
 from flask import url_for
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from datetime import datetime, date, time, timedelta
 import config
 
 
@@ -30,7 +30,10 @@ app.secret_key = 'I miss the comfort in being sad.'
 
 @app.route("/")
 def main():
-    return render_template('index.html')
+    if session.get('user'):
+        return redirect('/userHome')
+    else:
+        return render_template('index.html')
 
 
 @app.route('/signUp', methods=['GET'])
@@ -102,9 +105,71 @@ def sign_in():
 @app.route('/userHome')
 def user_home():
     if session.get('user'):
-        return render_template('user-home.html')
+        posts = {
+            'posts': [
+                {
+                    'body': 'I miss the comfort in being sad',
+                    'author': 'Kurdt',
+                    'favorites': 1000,
+                    'timestamp': datetime.now(),
+                    'tags': [
+                        'happy',
+                        'sad'
+                    ]
+                },
+                {
+                    'body': 'I miss the comfort in being sad',
+                    'author': 'Kurdt',
+                    'favorites': 1000,
+                    'timestamp': datetime.now() - timedelta(minutes=30),
+                    'tags': [
+                        'happy',
+                        'sad'
+                    ]
+                },
+                {
+                    'body': 'I miss the comfort in being sad',
+                    'author': 'Kurdt',
+                    'favorites': 1000,
+                    'timestamp': datetime.now(),
+                    'tags': [
+                        'happy',
+                        'sad'
+                    ]
+                }
+            ],
+            'count': 3
+        }
+
+        return render_template('user-home.html', posts=posts)
     else:
-        return render_template('error.html', error='Unauthorized Access')
+        return render_template('sign-in.html', error='Unauthorized Access')
+
+
+@app.route('/post', methods=['POST'])
+def post():
+    if session.get('user'):
+        try:
+            _user = session.get('user')
+            _post = request.form['post']
+            # TODO: add the tags
+            _tags = request.form.getlist('tags')
+
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.callproc('sp_newPost', (_user, _post))
+            data = cursor.fetchall()
+
+            if len(data) is 0:
+                conn.commit()
+                return json.dumps({'response': 'success'})
+            else:
+                return json.dumps({'error': str(data[0][0])}), 400
+        except Exception as e:
+            return json.dumps({'redirect': url_for('error')}), 500
+        finally:
+            cursor.close()
+            conn.close()
 
 
 @app.route('/logout')
@@ -116,6 +181,20 @@ def logout():
 @app.route('/error')
 def error():
     return render_template('error', error='Sorry there was a problem with your request.')
+
+
+@app.template_filter('date')
+def date_filter(_date):
+    if _date > datetime.now() - timedelta(seconds=60):
+        return 'a few seconds ago'
+    elif _date > datetime.now() - timedelta(minutes=15):
+        return 'a few minutes ago'
+    elif _date > datetime.combine(date.today(), time.min):
+        return 'today'
+    elif _date > datetime.combine(date.today(), time.min) - timedelta(days=1):
+        return 'yesterday'
+    else:
+        return _date.strftime('%a %b %e %y')
 
 
 if __name__ == "__main__":
