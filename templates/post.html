@@ -4,23 +4,11 @@
 {{ super() }}
 <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
 <link href="../static/bootstrap-tagsinput.css" rel="stylesheet">
-<link href="../static/user-home.css" rel="stylesheet">
+<link href="../static/post.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="new-post">
-    <form class="new-post-form">
-        <textarea name="post" placeholder="What's on your mind?" required></textarea>
-        <span class="wrapper hide">
-            <label class="tags hide">tags</label>
-            <select name="tags" multiple class="" data-role="tagsinput"></select>
-        </span>
-        <button class="btn btn-primary pull-right submit hide" type="submit">Post</button>
-        <div class="clearfix"></div>
-    </form>
-</div>
 <div class="feed">
-    {% for post in posts %}
     <div class="panel">
         <div class="pull-left">
             <div class="author">{{post.author}}</div>
@@ -46,23 +34,33 @@
             <span class="label label-danger label-important">{{tag}}</span>
             {% endfor %}
         </div>
-        <a href="/posts/{{post.pid}}">
-            <button class="btn btn-primary btn-xs comment">
-                <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
-                Comments
-            </button>
-        </a>
     </div>
-    {% else %}
-    <h1 class="text-center">
-        It's awfully lonely out here...<br/>
-        <small>go make some <a href="/friends">friends</a></small>
-    </h1>
-    {% endfor %}
+    <div class="panel">
+        <div class="new-post">
+            <form class="new-post-form" data-post-id="{{post.pid}}">
+                <textarea name="post" placeholder="Write a comment..." required></textarea>
+                <button class="btn btn-primary pull-right submit" type="submit">Comment</button>
+                <div class="clearfix"></div>
+            </form>
+        </div>
+
+        <div class="comments">
+            {% for comment in comments %}
+            <div class="panel comment">
+                <div class="pull-left">
+                    <div class="author">{{comment.author}}</div>
+                    <div class="timestamp" title="{{comment.timestamp.strftime('%A, %B %e, %Y at %r')}}">{{comment.timestamp | date}}</div>
+                    <div>{{comment.body}}</div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}
 {% block scripts %}
-<script src="../static/js/user-home.js"></script>
+<script src="../static/js/post.js"></script>
 <script src="../static/js/bootstrap-tagsinput.js"></script>
 {% endblock %}

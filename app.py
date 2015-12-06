@@ -230,6 +230,89 @@ def favorite(pid):
             return json.dumps({'response': 'error'}), 400
 
 
+@app.route('/posts/<pid>')
+def posts(pid):
+    if session.get('user'):
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_getPostComments', (pid,))
+        comments = cursor.fetchall()
+
+        comments_list = []
+
+        for comment in comments:
+            comment_dict = {
+                'pid': comment[0],
+                'body': comment[1],
+                'timestamp': comment[2],
+                'author': comment[3],
+            }
+            comments_list.append(comment_dict)
+
+        cursor.close()
+
+        cursor = conn.cursor()
+        cursor.callproc('sp_getPost', (pid,))
+        post = cursor.fetchall()
+
+        post_dict = {
+            'pid': post[0][0],
+            'timestamp': post[0][1],
+            'author': post[0][2],
+            'body': post[0][3],
+            'tags': post[0][4].split(',') if post[0][4] is not None else [],
+            'favorites': post[0][5]
+        }
+        
+        return render_template('post.html', post=post_dict, comments=comments_list)
+    else:
+        return render_template('sign-in.html', error='Unauthorized Access')
+
+
+@app.route('/posts/<pid>/comments', methods=['POST'])
+def comment(pid):
+    if session.get('user'):
+        _post = request.form['post']
+        bod_out = ''
+        stamp = datetime.now()
+        author = ''
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_newComment', (pid, session.get('user'), _post, bod_out, stamp, author))
+        comment = cursor.fetchall()
+
+        if len(comment) is 0:
+            conn.commit()
+
+        cursor.close()
+        cursor = conn.cursor()
+        cursor.execute('SELECT @_sp_newComment_3')
+        body = cursor.fetchall()
+
+        cursor.execute('SELECT @_sp_newComment_4')
+        timestamp = cursor.fetchall()
+
+        cursor.execute('SELECT @_sp_newComment_5')
+        author = cursor.fetchall()
+
+        cursor.close()
+
+        comment = {
+            'body': body[0][0],
+            'timestamp': datetime.strptime(timestamp[0][0], "%Y-%m-%d %H:%M:%S"),
+            'author': author[0][0]
+        }
+
+        return render_template('comment.html', comment=comment)
+
+    else:
+         return json.dumps({'response': 'error'}), 400
+
+
 @app.route('/logout')
 def logout():
     session.pop('user', None)

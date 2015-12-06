@@ -34,7 +34,7 @@
 }
 
 .new-post {
-    padding: 25px;
+    padding: 10px;
     background-color: #EEEEEE;
 }
 
@@ -56,6 +56,11 @@
     min-width: 200px;
 }
 
-.tags {
-    margin-bottom: 20px;
+.comments {
+    background-color: #EEEEEE;
+    padding: 10px;
+}
+
+.comment {
+    padding: 10px;
 }

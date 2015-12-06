@@ -1,0 +1,8 @@
+<div class="panel comment">
+    <div class="pull-left">
+        <div class="author">{{comment.author}}</div>
+        <div class="timestamp" title="{{comment.timestamp.strftime('%A, %B %e, %Y at %r')}}">{{comment.timestamp | date}}</div>
+        <div>{{comment.body}}</div>
+    </div>
+    <div class="clearfix"></div>
+</div>
