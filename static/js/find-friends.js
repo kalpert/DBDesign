@@ -1,7 +1,7 @@
 (function($) {
 
   $(function() {
-    $('.header').find('.add-friends').addClass('active');
+    $('.header').find('.find-friends').addClass('active');
 
 
     $('.add-friend').click(function() {

@@ -1,0 +1,22 @@
+#friend-input {
+    width: 70%;
+    margin: 20px auto 40px auto;
+}
+
+.messages {
+    background-color: #EEEEEE;
+}
+
+.message {
+    margin: 0 20px 10px 20px;
+    padding: 10px;
+}
+
+.message:first-child {
+    margin: 20px 20px 10px 20px;
+}
+
+.from-me {
+    color: #fff;
+    background-color: #337ab7;
+}

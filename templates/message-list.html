@@ -1,0 +1,21 @@
+<h1 class="text-center">{{other_user}}</h1>
+<div class="messages">
+    {% for message in messages_list %}
+    <div class="panel message {{ 'pull-right from-me' if message.fromuser == user_id else 'pull-left' }}">
+        {{message.body}}
+    </div>
+    <div class="clearfix"></div>
+    {% endfor %}
+</div>
+<div class="new-message">
+    <form id="send-message" data-user-id="{{other_user_id}}">
+        <div class="input-group">
+            <input type="text" name="message" class="form-control" placeholder="Message">
+            <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">
+                    <span class="glyphicon glyphicon-send" aria-hidden="true"></span>&nbsp;&nbsp;Send
+                </button>
+            </span>
+        </div>
+    </form>
+</div>

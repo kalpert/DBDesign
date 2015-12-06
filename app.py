@@ -129,8 +129,8 @@ def user_home():
         return render_template('sign-in.html', error='Unauthorized Access')
 
 
-@app.route('/friends')
-def friends():
+@app.route('/find-friends')
+def find_friends():
     if session.get('user'):
         conn = mysql.connect()
         cursor = conn.cursor()
@@ -313,6 +313,84 @@ def comment(pid):
          return json.dumps({'response': 'error'}), 400
 
 
+@app.route('/messages')
+def messages():
+    if session.get('user'):
+        return render_template('messages.html')
+
+
+@app.route('/messages/<user_id>', methods=['GET'])
+def view_messages(user_id):
+    if session.get('user'):
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_getMessagesForUser', (user_id,))
+        messages = cursor.fetchall()
+
+        other_user = messages[0][5]
+        other_user_id = messages[0][1] if messages[0][4] == session.get('user') else messages[0][4]
+        messages_list = []
+
+        for message in messages:
+            message_dict = {
+                'mid': message[0],
+                'fromuser': message[1],
+                'body': message[2],
+                'timestamp': message[3],
+                'touser': message[4],
+            }
+            messages_list.append(message_dict)
+
+        cursor.close()
+        return render_template('message-list.html', messages_list=messages_list,
+                               user_id=session.get('user'),
+                               other_user=other_user,
+                               other_user_id=other_user_id)
+
+
+@app.route('/messages/<user_id>', methods=['POST'])
+def send_message(user_id):
+    if session.get('user'):
+        _message = request.form['message']
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_createMessage', (session.get('user'), user_id, _message))
+        data = cursor.fetchall()
+
+        if len(data) is 0:
+            conn.commit()
+            return render_template('message.html', message=_message)
+
+        else:
+            return json.dumps({'response': 'error'}), 400
+
+
+@app.route('/friends')
+def friends():
+    if session.get('user'):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_getFriends', (session.get('user'),))
+        friends = cursor.fetchall()
+
+        friend_list = []
+
+        for friend in friends:
+            friend_dict = {
+                'id': friend[0],
+                'name': friend[1]
+            }
+            friend_list.append(friend_dict)
+
+        return json.dumps(friend_list)
+    else:
+        return render_template('sign-in.html', error='Unauthorized Access')
+
 @app.route('/logout')
 def logout():
     session.pop('user', None)
@@ -332,6 +410,7 @@ def tags():
     tags = cursor.fetchall()
     tags = [element for tupl in tags for element in tupl]
     return json.dumps(tags)
+
 
 @app.template_filter('date')
 def date_filter(_date):
