@@ -414,6 +414,68 @@ def tags():
     return json.dumps(tags)
 
 
+@app.route('/my-posts')
+def my_posts():
+    if session.get('user'):
+
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        cursor.callproc('sp_getMyPosts', (session.get('user'),))
+        posts = cursor.fetchall()
+
+        post_list = []
+
+        for post in posts:
+            post_dict = {
+                'pid': post[0],
+                'timestamp': post[1],
+                'author': post[2],
+                'body': post[3],
+                'tags': post[4].split(',') if post[4] is not None else [],
+                'favorites': post[5]
+            }
+            post_list.append(post_dict)
+        return render_template('my-posts.html', posts=post_list)
+    else:
+        return render_template('sign-in.html', error='Unauthorized Access')
+
+
+@app.route('/posts/<post_id>', methods=['PUT'])
+def update_post(post_id):
+    _user = session.get('user')
+    _post = request.form['post']
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('sp_updatePost', (post_id, _post, _user))
+    data = cursor.fetchall()
+
+    if len(data) is 0:
+        conn.commit()
+        cursor.close()
+        return json.dumps({'response': 'success'})
+    else:
+        return json.dumps({'error': str(data[0])}), 400
+
+
+@app.route('/posts/<post_id>', methods=['DELETE'])
+def delete_post(post_id):
+    _user = session.get('user')
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.callproc('sp_deletePost', (post_id,  _user))
+    data = cursor.fetchall()
+
+    if len(data) is 0:
+        conn.commit()
+        cursor.close()
+        return json.dumps({'response': 'success'})
+    else:
+        return json.dumps({'error': str(data[0])}), 400
+
+
 @app.template_filter('date')
 def date_filter(_date):
     if _date > datetime.now() - timedelta(seconds=60):
