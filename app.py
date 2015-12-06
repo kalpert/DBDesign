@@ -324,6 +324,15 @@ def error():
     return render_template('error', error='Sorry there was a problem with your request.')
 
 
+@app.route('/tags')
+def tags():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM topics")
+    tags = cursor.fetchall()
+    tags = [element for tupl in tags for element in tupl]
+    return json.dumps(tags)
+
 @app.template_filter('date')
 def date_filter(_date):
     if _date > datetime.now() - timedelta(seconds=60):

@@ -6,8 +6,14 @@
     $('.header').find('.home').addClass('active');
 
     $('select').tagsinput({
-                            cancelConfirmKeysOnEmpty: false
+                            cancelConfirmKeysOnEmpty: false,
+                            typeahead: {
+                              source: function() {
+                                return $.ajax({url: '/tags', type: 'GET', dataType: 'json'});
+                              }
+                            }
                           });
+
 
     $newPostForm.find('textarea, input').focus(function() {
       $('.submit, .tags, .wrapper').removeClass('hide');
