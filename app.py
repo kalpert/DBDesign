@@ -135,7 +135,7 @@ def friends():
         conn = mysql.connect()
         cursor = conn.cursor()
 
-        cursor.execute('SELECT * FROM users')
+        cursor.callproc('sp_getNonFriends', (session.get('user'),))
         people = cursor.fetchall()
 
         people_list = []
