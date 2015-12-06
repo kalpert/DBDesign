@@ -326,11 +326,8 @@ def view_messages(user_id):
         conn = mysql.connect()
         cursor = conn.cursor()
 
-        cursor.callproc('sp_getMessagesForUser', (user_id,))
+        cursor.callproc('sp_getMessagesForUser', (session.get('user'), user_id))
         messages = cursor.fetchall()
-
-        other_user = messages[0][5]
-        other_user_id = messages[0][1] if messages[0][4] == session.get('user') else messages[0][4]
         messages_list = []
 
         for message in messages:
@@ -344,10 +341,15 @@ def view_messages(user_id):
             messages_list.append(message_dict)
 
         cursor.close()
+        cursor = conn.cursor()
+        cursor.callproc('sp_getUserName', (user_id,))
+
+        other_user = cursor.fetchall()
+
         return render_template('message-list.html', messages_list=messages_list,
                                user_id=session.get('user'),
-                               other_user=other_user,
-                               other_user_id=other_user_id)
+                               other_user=other_user[0][0],
+                               other_user_id=user_id)
 
 
 @app.route('/messages/<user_id>', methods=['POST'])
